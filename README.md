@@ -62,6 +62,14 @@ npm run dev
 
 App: `http://127.0.0.1:5173` (Vite proxies `/api` → Django on `:8000`).
 
+### Deploy frontend (Vercel)
+
+1. API base is **`https://spotter-truck-routes.onrender.com`** (`frontend/src/api.js` + `.env.production`).
+2. Push to GitHub, then [Vercel](https://vercel.com) → **New Project** → same repo.
+3. **Root Directory:** `frontend`
+4. Deploy. Copy the Vercel URL (e.g. `https://spotter-truck-routes.vercel.app`).
+5. On **Render** → Environment → **`CORS_ALLOWED_ORIGINS`**, add your Vercel URL (comma-separated if multiple). Redeploy backend so the browser can call the API.
+
 ### 4. Quick test
 
 ```bash

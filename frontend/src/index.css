@@ -1,0 +1,73 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --surface: #f8fafc;
+  --panel: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --brand: #0ea5e9;
+  --brand-dark: #0284c7;
+  --input-bg: #ffffff;
+  --input-disabled: #f8fafc;
+  --elevated: #ffffff;
+  --soft: #f1f5f9;
+  --hover: #f0f9ff;
+  --label: #334155;
+  --risk-label: #475569;
+  --map-bg: #cbd5e1;
+  --shadow: rgba(15, 23, 42, 0.12);
+  --overlay: rgba(15, 23, 42, 0.35);
+  --card: #ffffff;
+  --card-active: #f0f9ff;
+  --card-rec: #f7fee7;
+  --metric-bg: #f8fafc;
+  --err-bg: #fef2f2;
+  --err-text: #991b1b;
+  --err-line: #fecaca;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --surface: #0b1220;
+  --panel: #111827;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --line: #334155;
+  --brand: #38bdf8;
+  --brand-dark: #0ea5e9;
+  --input-bg: #0f172a;
+  --input-disabled: #1e293b;
+  --elevated: #1e293b;
+  --soft: #1e293b;
+  --hover: #172554;
+  --label: #cbd5e1;
+  --risk-label: #94a3b8;
+  --map-bg: #1e293b;
+  --shadow: rgba(0, 0, 0, 0.45);
+  --overlay: rgba(0, 0, 0, 0.55);
+  --card: #1e293b;
+  --card-active: #172554;
+  --card-rec: #14532d33;
+  --metric-bg: #0f172a;
+  --err-bg: #450a0a;
+  --err-text: #fecaca;
+  --err-line: #7f1d1d;
+}
+
+body {
+  background: var(--surface);
+  color: var(--text);
+}
