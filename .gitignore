@@ -1,0 +1,58 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# secrets — never commit
+.env
+.env.local
+.env.*.local
+backend/.env
+*.pem
+*.key
+
+# keep template
+!.env.example
+!backend/.env.example
+
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+backend/.venv/
+venv/
+.venv/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.sqlite3
+backend/db.sqlite3
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node / Vite / React
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+frontend/.vite/
+
+# logs / temp
+logs/
+*.log
+tmp/
+.cache/
