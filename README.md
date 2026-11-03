@@ -33,12 +33,18 @@ API: `http://127.0.0.1:8000`
 
 ### Deploy backend (Render / Railway / similar)
 
-Set the service **root directory** to `backend` (not the repo root), or the build will not find `requirements.txt`.
+**Option A (recommended):** In Render → **Settings** → **Root Directory**, set `backend`. Then:
 
 | Setting | Value |
 |--------|--------|
 | Build | `pip install -r requirements.txt && python manage.py migrate` |
 | Start | `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT` |
+
+**Option B:** Leave root directory empty and use the repo-root `requirements.txt` (includes `backend/requirements.txt`). Build: `pip install -r requirements.txt && python backend/manage.py migrate`. Start: `cd backend && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`.
+
+Or connect **`render.yaml`** at the repo root (Blueprint) — it sets `rootDir: backend` for you.
+
+Set **Python 3.12** (not 3.14) under Environment if the build picks the wrong runtime.
 
 Environment variables: `GEOAPIFY_API_KEY` (required), `DEBUG=False`, `SECRET_KEY`, `ALLOWED_HOSTS` (your host name), and `CORS_ALLOWED_ORIGINS` (frontend URL when you deploy the UI).
 
