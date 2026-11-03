@@ -40,7 +40,9 @@ API: `http://127.0.0.1:8000`
 | Build | `pip install -r requirements.txt && python manage.py migrate` |
 | Start | `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT` |
 
-Render’s default Django start command is `gunicorn core.wsgi:application` — **wrong for this repo**. Override **Start Command** (or use `backend/Procfile`). Project package is **`config`**, not `core`.
+Render’s default start command is `gunicorn core.wsgi:application`. The real app lives in `backend/config/`; repo-root **`core/wsgi.py`** forwards to it so the default command works. Better long-term: set **Root Directory** to `backend` and **Start Command** to `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`.
+
+Pin Python **3.12** via env `PYTHON_VERSION=3.12.8` or root **`runtime.txt`** (Render ignores 3.14 default for Django 4.2).
 
 **Option B:** Leave root directory empty and use the repo-root `requirements.txt` (includes `backend/requirements.txt`). Build: `pip install -r requirements.txt && python backend/manage.py migrate`. Start: `cd backend && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`.
 
