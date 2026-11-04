@@ -108,6 +108,15 @@ def _parse_feature(feat, dep):
     }
 
 
+def _geoapify_fail(resp):
+    try:
+        body = resp.json()
+        msg = body.get("message") or body.get("error") or resp.text[:300]
+    except Exception:
+        msg = resp.text[:300] or f"HTTP {resp.status_code}"
+    raise RuntimeError(msg)
+
+
 def _call_geoapify(waypoints, extra=None):
     key = os.environ.get("GEOAPIFY_API_KEY")
     if not key:
@@ -124,9 +133,32 @@ def _call_geoapify(waypoints, extra=None):
     if extra:
         params.update(extra)
 
-    resp = requests.get(GEOAPIFY_BASE, params=params, timeout=45)
-    resp.raise_for_status()
+    try:
+        resp = requests.get(GEOAPIFY_BASE, params=params, timeout=90)
+    except requests.Timeout as e:
+        raise RuntimeError("Routing service timed out; try again.") from e
+    except requests.RequestException as e:
+        raise RuntimeError("Routing service unavailable.") from e
+
+    if resp.status_code >= 400:
+        _geoapify_fail(resp)
     return resp.json()
+
+
+def _probe_waypoint(name, lat, lon):
+    try:
+        _call_geoapify(f"{lat},{lon}|{lat},{lon}", extra={"alternatives": "false"})
+    except RuntimeError as e:
+        msg = str(e)
+        if any(
+            x in msg
+            for x in ("GEOAPIFY_API_KEY", "timed out", "unavailable", "Routing service")
+        ):
+            raise
+        raise RuntimeError(
+            f"{name} is not on a drivable road ({lat:.4f}, {lon:.4f}). "
+            "Search for a nearby town or place the map pin closer to a road."
+        ) from e
 
 
 def _route_key(feat):
@@ -136,7 +168,15 @@ def _route_key(feat):
 
 def fetch_routes(o_lat, o_lon, d_lat, d_lon, dep):
     wps = f"{o_lat},{o_lon}|{d_lat},{d_lon}"
-    data = _call_geoapify(wps)
+    try:
+        data = _call_geoapify(wps)
+    except RuntimeError as err:
+        try:
+            _probe_waypoint("Origin", o_lat, o_lon)
+            _probe_waypoint("Destination", d_lat, d_lon)
+        except RuntimeError:
+            raise
+        raise err
     feats = list(data.get("features") or [])
 
     # TODO: confirm alternatives=true always gives 3 on prod key

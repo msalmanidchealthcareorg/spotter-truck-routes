@@ -52,9 +52,12 @@ class RouteView(APIView):
             )
             tag_routes(routes, d["load_weight"], get_weather)
         except RuntimeError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except requests.RequestException:
-            return Response({"detail": "upstream failed"}, status=502)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except requests.RequestException as e:
+            return Response(
+                {"detail": "Weather service unavailable."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
 
         return Response(
             {
