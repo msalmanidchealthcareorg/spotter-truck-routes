@@ -1,5 +1,6 @@
 import math
 import os
+import re
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -158,16 +159,48 @@ def _waypoint_routable(lat, lon):
         return False
 
 
+def _place_search_queries(label):
+    if not label:
+        return []
+    label = label.strip()
+    before = label.split(",")[0].strip()
+    no_zip = re.sub(r"\b\d{4,6}\b", "", before).strip()
+    country = label.split(",")[-1].strip() if "," in label else ""
+    token = no_zip.split()[0] if no_zip else ""
+    out = []
+    for q in (label, before, no_zip):
+        if q and q not in out:
+            out.append(q)
+    if token and country:
+        out.append(f"{token} {country}")
+    return out
+
+
 def snap_waypoint(lat, lon):
-    """Map pins can be off-road; reverse geocode returns a routable centroid."""
+    """Map pins can be off-road; snap via reverse geocode then place search."""
     if _waypoint_routable(lat, lon):
         return lat, lon
-    from .geocode import reverse
+
+    from .geocode import reverse, search
 
     row = reverse(lat, lon)[0]
     slat, slon = row["lat"], row["lon"]
     if slat is not None and slon is not None and _waypoint_routable(slat, slon):
         return slat, slon
+
+    seen = set()
+    for q in _place_search_queries(row.get("label") or ""):
+        for hit in search(q, limit=5):
+            hl, hn = hit.get("lat"), hit.get("lon")
+            if hl is None or hn is None:
+                continue
+            key = (round(hl, 5), round(hn, 5))
+            if key in seen:
+                continue
+            seen.add(key)
+            if _waypoint_routable(hl, hn):
+                return hl, hn
+
     return lat, lon
 
 
