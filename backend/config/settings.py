@@ -32,11 +32,12 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv("DEBUG", "True").lower() in ("1", "true", "yes")
 
-ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if h.strip()
-]
+_default_hosts = "localhost,127.0.0.1,spotter-truck-routes.onrender.com"
+_hosts = os.getenv("ALLOWED_HOSTS", _default_hosts)
+render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if render_host and render_host not in _hosts:
+    _hosts = f"{_hosts},{render_host}"
+ALLOWED_HOSTS = [h.strip() for h in _hosts.split(",") if h.strip()]
 
 
 # Application definition
