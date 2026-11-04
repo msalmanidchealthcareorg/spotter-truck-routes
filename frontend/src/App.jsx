@@ -96,14 +96,16 @@ function App() {
   }
 
   const onMapPick = async (which, lat, lon) => {
-    let label = `${lat.toFixed(4)}, ${lon.toFixed(4)}`
+    let row = { lat, lon, label: `${lat.toFixed(4)}, ${lon.toFixed(4)}` }
     try {
       const { data } = await axios.get(apiPath('/api/geocode/'), { params: { lat, lon } })
-      label = data.results?.[0]?.label || label
+      const hit = data.results?.[0]
+      if (hit?.lat != null && hit?.lon != null) {
+        row = { lat: hit.lat, lon: hit.lon, label: hit.label || row.label }
+      }
     } catch {
-      // keep coords label
+      // keep click coords
     }
-    const row = { lat, lon, label }
     if (which === 'origin') setOrigin(row)
     else setDest(row)
   }

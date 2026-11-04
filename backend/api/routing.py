@@ -145,6 +145,32 @@ def _call_geoapify(waypoints, extra=None):
     return resp.json()
 
 
+def _waypoint_routable(lat, lon):
+    try:
+        _call_geoapify(f"{lat},{lon}|{lat},{lon}", extra={"alternatives": "false"})
+        return True
+    except RuntimeError as e:
+        if any(
+            x in str(e)
+            for x in ("GEOAPIFY_API_KEY", "timed out", "unavailable", "Routing service")
+        ):
+            raise
+        return False
+
+
+def snap_waypoint(lat, lon):
+    """Map pins can be off-road; reverse geocode returns a routable centroid."""
+    if _waypoint_routable(lat, lon):
+        return lat, lon
+    from .geocode import reverse
+
+    row = reverse(lat, lon)[0]
+    slat, slon = row["lat"], row["lon"]
+    if slat is not None and slon is not None and _waypoint_routable(slat, slon):
+        return slat, slon
+    return lat, lon
+
+
 def _probe_waypoint(name, lat, lon):
     try:
         _call_geoapify(f"{lat},{lon}|{lat},{lon}", extra={"alternatives": "false"})
@@ -167,6 +193,8 @@ def _route_key(feat):
 
 
 def fetch_routes(o_lat, o_lon, d_lat, d_lon, dep):
+    o_lat, o_lon = snap_waypoint(o_lat, o_lon)
+    d_lat, d_lon = snap_waypoint(d_lat, d_lon)
     wps = f"{o_lat},{o_lon}|{d_lat},{d_lon}"
     try:
         data = _call_geoapify(wps)
