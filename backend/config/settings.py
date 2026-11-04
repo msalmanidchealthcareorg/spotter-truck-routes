@@ -143,7 +143,11 @@ REST_FRAMEWORK = {
     ],
 }
 
-_default_cors = "http://localhost:5173,http://127.0.0.1:5173"
+_default_cors = (
+    "http://localhost:5173,"
+    "http://127.0.0.1:5173,"
+    "https://spotter-truck-routes.vercel.app"
+)
 CORS_ALLOWED_ORIGINS = [
     o.strip()
     for o in os.getenv("CORS_ALLOWED_ORIGINS", _default_cors).split(",")
